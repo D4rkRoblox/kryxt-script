@@ -87,10 +87,10 @@ SaveManager:IgnoreThemeSettings()
 SaveManager:SetIgnoreIndexes({"MenuKeybind"})
 ThemeManager:SetDefaultTheme({
 	FontColor = "ffffff",
-	MainColor = "131313",
-	AccentColor = "a2cdff",
-	BackgroundColor = "151515",
-	OutlineColor = "212121"
+	MainColor = "1a1012",
+	AccentColor = "e03a4a",
+	BackgroundColor = "140b0d",
+	OutlineColor = "3a1a20"
 })
 ThemeManager:SetFolder("MyHub")
 SaveManager:SetFolder("MyHub/configs")
