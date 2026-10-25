@@ -10,9 +10,19 @@ local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
 Library.ThemeManager = loadstring(game:HttpGet(repo .. "addons/ThemeManager.lua"))()
 Library.SaveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
 
+Library.FontColor = Color3.fromHex("ffffff")
+Library.MainColor = Color3.fromHex("131313")
+Library.AccentColor = Color3.fromHex("a2cdff")
+Library.AccentColorDark = Library:GetDarkerColor(Library.AccentColor)
+Library.BackgroundColor = Color3.fromHex("151515")
+Library.OutlineColor = Color3.fromHex("212121")
+Library.RiskColor = Color3.fromHex("ff7425")
+
 Library.ShowCustomCursor = false
 Library.BlurEnabled = true
-Library.BlurSize = 18
+Library.BlurSize = 15
+Library.BackColor = Color3.fromHex("000000")
+Library.BackTransparency = 0.7
 Library.CursorEnabled = true
 Library.CursorColor = Color3.fromRGB(167, 71, 71)
 
@@ -21,9 +31,20 @@ Blur.Name = "LibraryBlur"
 Blur.Size = 0
 Blur.Parent = Lighting
 
-local ColorFx = Instance.new("ColorCorrectionEffect")
-ColorFx.Name = "LibraryColor"
-ColorFx.Parent = Lighting
+local DimGui = Instance.new("ScreenGui")
+DimGui.Name = "LibraryDim"
+DimGui.IgnoreGuiInset = true
+DimGui.DisplayOrder = 0
+DimGui.ResetOnSpawn = false
+DimGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local Dim = Instance.new("Frame")
+Dim.Size = UDim2.new(1, 0, 1, 0)
+Dim.BorderSizePixel = 0
+Dim.BackgroundColor3 = Library.BackColor
+Dim.BackgroundTransparency = 1
+Dim.Active = false
+Dim.Parent = DimGui
 
 local CursorGui = Instance.new("ScreenGui")
 CursorGui.Name = "LibraryCursor"
@@ -73,7 +94,8 @@ local loop = RunService.RenderStepped:Connect(function(dt)
 		end
 		local blurOn = open and Library.BlurEnabled
 		TweenService:Create(Blur, TweenInfo.new(0.4), {Size = blurOn and Library.BlurSize or 0}):Play()
-		TweenService:Create(ColorFx, TweenInfo.new(0.4), {Saturation = blurOn and -0.25 or 0, Contrast = blurOn and 0.1 or 0}):Play()
+		Dim.BackgroundColor3 = Library.BackColor
+		TweenService:Create(Dim, TweenInfo.new(0.4), {BackgroundTransparency = blurOn and Library.BackTransparency or 1}):Play()
 	end
 
 	if not open or not Library.CursorEnabled then
@@ -109,7 +131,7 @@ Library:OnUnload(function()
 	loop:Disconnect()
 	CursorGui:Destroy()
 	Blur:Destroy()
-	ColorFx:Destroy()
+	DimGui:Destroy()
 	UserInputService.MouseIconEnabled = oldMouseIcon
 end)
 
