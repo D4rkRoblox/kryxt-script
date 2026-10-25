@@ -3,6 +3,8 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
+local GuiService = game:GetService("GuiService")
+local CoreGui = game:GetService("CoreGui")
 
 local repo = "https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/"
 
@@ -25,6 +27,43 @@ Library.BlurSize = 15
 Library.BackColor = Color3.fromHex("000000")
 Library.BackTransparency = 0.7
 Library.CursorEnabled = true
+
+local function getGuiParent()
+	local ok, parent = pcall(function()
+		if gethui then
+			return gethui()
+		end
+		return CoreGui
+	end)
+	if ok and parent then
+		return parent
+	end
+	return Players.LocalPlayer:WaitForChild("PlayerGui")
+end
+
+local function protect(gui)
+	if syn and syn.protect_gui then
+		pcall(syn.protect_gui, gui)
+	elseif protect_gui then
+		pcall(protect_gui, gui)
+	end
+end
+
+local function isMenuOpen()
+	if Library.Toggled == true then
+		return true
+	end
+	local gui = Library.ScreenGui
+	if not gui then
+		return false
+	end
+	for _, child in ipairs(gui:GetChildren()) do
+		if child:IsA("Frame") and child.Visible and child.AbsoluteSize.X >= 300 and child.AbsoluteSize.Y >= 200 then
+			return true
+		end
+	end
+	return false
+end
 
 local Blur = Instance.new("BlurEffect")
 Blur.Name = "LibraryBlur"
@@ -53,7 +92,8 @@ CursorGui.DisplayOrder = 999999
 CursorGui.ResetOnSpawn = false
 CursorGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 CursorGui.Enabled = false
-CursorGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+protect(CursorGui)
+CursorGui.Parent = getGuiParent()
 
 local Dot = Instance.new("Frame")
 Dot.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -82,7 +122,7 @@ local ringPos = UserInputService:GetMouseLocation()
 local wasOpen = false
 
 local loop = RunService.RenderStepped:Connect(function(dt)
-	local open = Library.Toggled == true
+	local open = isMenuOpen()
 
 	if open ~= wasOpen then
 		wasOpen = open
@@ -111,10 +151,16 @@ local loop = RunService.RenderStepped:Connect(function(dt)
 	Ring.Position = UDim2.new(0, ringPos.X, 0, ringPos.Y)
 
 	local hovering = false
-	for _, g in ipairs(Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(m.X, m.Y - 36)) do
-		if g:IsA("TextButton") or g:IsA("TextBox") or g:IsA("ImageButton") then
-			hovering = true
-			break
+	local inset = GuiService:GetGuiInset()
+	local ok, objects = pcall(function()
+		return Library.ScreenGui.Parent:GetGuiObjectsAtPosition(m.X - inset.X, m.Y - inset.Y)
+	end)
+	if ok then
+		for _, g in ipairs(objects) do
+			if g:IsDescendantOf(Library.ScreenGui) and (g:IsA("TextButton") or g:IsA("TextBox") or g:IsA("ImageButton")) then
+				hovering = true
+				break
+			end
 		end
 	end
 	local size = hovering and 38 or 26
