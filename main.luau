@@ -1,4 +1,4 @@
-local LIB_URL = "https://raw.githubusercontent.com/D4rkRoblox/kryxt-script/refs/heads/main/library.lua"
+local LIB_URL = "https://raw.githubusercontent.com/D4rkRoblox/kryxt-script/refs/heads/main/libary.luau"
 
 local Library = loadstring(game:HttpGet(LIB_URL))()
 local ThemeManager = Library.ThemeManager
