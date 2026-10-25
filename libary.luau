@@ -11,12 +11,13 @@ Library.ThemeManager = loadstring(game:HttpGet(repo .. "addons/ThemeManager.lua"
 Library.SaveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
 
 Library.FontColor = Color3.fromHex("ffffff")
-Library.MainColor = Color3.fromHex("131313")
-Library.AccentColor = Color3.fromHex("a2cdff")
+Library.MainColor = Color3.fromHex("1a1012")
+Library.AccentColor = Color3.fromHex("e03a4a")
 Library.AccentColorDark = Library:GetDarkerColor(Library.AccentColor)
-Library.BackgroundColor = Color3.fromHex("151515")
-Library.OutlineColor = Color3.fromHex("212121")
+Library.BackgroundColor = Color3.fromHex("140b0d")
+Library.OutlineColor = Color3.fromHex("3a1a20")
 Library.RiskColor = Color3.fromHex("ff7425")
+Library.CursorColor = Color3.fromHex("e03a4a")
 
 Library.ShowCustomCursor = false
 Library.BlurEnabled = true
@@ -24,7 +25,6 @@ Library.BlurSize = 15
 Library.BackColor = Color3.fromHex("000000")
 Library.BackTransparency = 0.7
 Library.CursorEnabled = true
-Library.CursorColor = Color3.fromRGB(167, 71, 71)
 
 local Blur = Instance.new("BlurEffect")
 Blur.Name = "LibraryBlur"
@@ -127,8 +127,77 @@ UserInputService.InputBegan:Connect(function(i)
 	end
 end)
 
+local accentGradients = {}
+local gradientSpeed = 25
+
+local function near(a, b)
+	return math.abs(a.R - b.R) + math.abs(a.G - b.G) + math.abs(a.B - b.B) < 0.02
+end
+
+local function decorate(obj)
+	if not obj or not obj.Parent or not obj:IsA("Frame") then
+		return
+	end
+	if obj.BackgroundTransparency >= 1 or obj:FindFirstChildOfClass("UIGradient") then
+		return
+	end
+	local c = obj.BackgroundColor3
+	if near(c, Library.AccentColor) then
+		local g = Instance.new("UIGradient")
+		g.Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+			ColorSequenceKeypoint.new(0.5, Color3.fromRGB(210, 120, 130)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255))
+		})
+		g.Parent = obj
+		accentGradients[g] = true
+	elseif near(c, Library.MainColor) or near(c, Library.BackgroundColor) then
+		local g = Instance.new("UIGradient")
+		g.Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 100, 108))
+		})
+		g.Rotation = 90
+		g.Parent = obj
+	end
+end
+
+local function hook(gui)
+	if not gui then
+		return
+	end
+	for _, d in ipairs(gui:GetDescendants()) do
+		decorate(d)
+	end
+	gui.DescendantAdded:Connect(function(d)
+		task.defer(decorate, d)
+	end)
+end
+
+hook(Library.ScreenGui)
+
+local gradLoop = RunService.RenderStepped:Connect(function(dt)
+	for g in pairs(accentGradients) do
+		if g.Parent then
+			g.Rotation = (g.Rotation + dt * gradientSpeed) % 360
+		else
+			accentGradients[g] = nil
+		end
+	end
+end)
+
+local baseCreateWindow = Library.CreateWindow
+function Library:CreateWindow(...)
+	local window = baseCreateWindow(self, ...)
+	task.defer(function()
+		hook(Library.ScreenGui)
+	end)
+	return window
+end
+
 Library:OnUnload(function()
 	loop:Disconnect()
+	gradLoop:Disconnect()
 	CursorGui:Destroy()
 	Blur:Destroy()
 	DimGui:Destroy()
