@@ -56,7 +56,7 @@ Box:AddButton({
 })
 
 Box:AddLabel("Keybind"):AddKeyPicker("MyKey", {
-	Default = "RightShift",
+	Default = "F",
 	Mode = "Toggle",
 	Text = "Menu key",
 	NoUI = false
@@ -74,7 +74,7 @@ MenuBox:AddButton("Unload", function()
 end)
 
 MenuBox:AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", {
-	Default = "End",
+	Default = "RightShift",
 	NoUI = true,
 	Text = "Menu keybind"
 })
