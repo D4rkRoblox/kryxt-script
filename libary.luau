@@ -50,15 +50,19 @@ local function protect(gui)
 end
 
 local function isMenuOpen()
-	if Library.Toggled == true then
-		return true
+	local w = Library.MainWindow
+	if w and w.Holder then
+		return w.Holder.Visible
+	end
+	if Library.Toggled ~= nil then
+		return Library.Toggled == true
 	end
 	local gui = Library.ScreenGui
 	if not gui then
 		return false
 	end
 	for _, child in ipairs(gui:GetChildren()) do
-		if child:IsA("Frame") and child.Visible and child.AbsoluteSize.X >= 300 and child.AbsoluteSize.Y >= 200 then
+		if child:IsA("Frame") and child.Visible and child.BackgroundTransparency < 1 and child.AbsoluteSize.X >= 300 and child.AbsoluteSize.Y >= 200 then
 			return true
 		end
 	end
@@ -235,6 +239,7 @@ end)
 local baseCreateWindow = Library.CreateWindow
 function Library:CreateWindow(...)
 	local window = baseCreateWindow(self, ...)
+	Library.MainWindow = window
 	task.defer(function()
 		hook(Library.ScreenGui)
 	end)
