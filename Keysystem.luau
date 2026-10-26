@@ -295,7 +295,7 @@ UI["7"].FocusLost:Connect(function(enterPressed)
 		end
 		Key = entered
 		closeAll()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/D4rkRoblox/kryxt-script/refs/heads/main/main.luau"))()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/D4rkRoblox/kryxt-script/refs/heads/main/main(paid).luau"))()
 		return
 	end
 
